@@ -1,0 +1,29 @@
+{
+  "name": "world-clock",
+  "version": "1.0.0",
+  "description": "顯示美國西岸時間和台灣時間的桌面應用",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^26.8.1",
+    "png-to-ico": "^3.0.1"
+  },
+  "build": {
+    "appId": "com.worldclock.app",
+    "productName": "World Clock",
+    "win": {
+      "icon": "icon.ico",
+      "target": "portable",
+      "signAndEditExecutable": false
+    },
+    "forceCodeSigning": false
+  },
+  "dependencies": {
+    "jimp": "^1.6.0",
+    "png2icons": "^2.0.1"
+  }
+}

@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>世界時鐘與日常管家</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fredoka', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+            background-color: #fcf9f2;
+            background-image: radial-gradient(#e5dbc3 2px, transparent 2px);
+            background-size: 30px 30px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px 50px 20px;
+            color: #4a4a4a;
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+
+        /* 頂部導航 / 模式切換 */
+        .top-bar {
+            width: 100%;
+            max-width: 820px;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .dark-mode-btn {
+            padding: 9px 20px;
+            border-radius: 20px;
+            background: #ffffff;
+            border: 2px solid #e0dfd5;
+            color: #666;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dark-mode-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .dark-mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+        }
+
+        .main-wrapper {
+            width: 100%;
+            max-width: 820px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            align-items: center;
+        }
+
+        /* 時鐘卡片 */
+        .clocks-container {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .clock-card {
+            flex: 1 1 320px;
+            background: #ffffff;
+            border-radius: 35px;
+            padding: 30px 25px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 12px 30px rgba(162, 155, 139, 0.12);
+            border: 4px solid #fff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+        }
+
+        .clock-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 36px rgba(162, 155, 139, 0.18);
+        }
+
+        .clock-card.usa {
+            border-color: #cde6fa;
+        }
+
+        .clock-card.taiwan {
+            border-color: #ffe0ef;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .clock-card.usa .badge {
+            background-color: #f0f7fd;
+            color: #58a0de;
+        }
+
+        .clock-card.taiwan .badge {
+            background-color: #fff2f7;
+            color: #e67da8;
+        }
+
+        .timezone {
+            color: #9ba6af;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .time {
+            font-size: 3.4em;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 0 0 8px 0;
+            line-height: 1.1;
+        }
+
+        .clock-card.usa .time {
+            color: #63afee;
+        }
+
+        .clock-card.taiwan .time {
+            color: #f596be;
+        }
+
+        .date {
+            color: #8e97a0;
+            font-size: 1.05em;
+            font-weight: 500;
+        }
+
+        /* 鬧鐘卡片 */
+        .alarm-section {
+            width: 100%;
+            background: #ffffff;
+            border-radius: 35px;
+            padding: 25px 30px;
+            box-shadow: 0 12px 30px rgba(162, 155, 139, 0.12);
+            border: 4px solid #f0f4e6;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .section-title {
+            font-size: 1.25em;
+            color: #7b8f58;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-subtitle {
+            font-size: 0.85em;
+            font-weight: 500;
+            color: #a4af8b;
+        }
+
+        .alarm-form {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .form-input {
+            padding: 10px 16px;
+            border: 2px solid #e2e1d7;
+            border-radius: 14px;
+            font-size: 1em;
+            font-family: inherit;
+            color: #555;
+            outline: none;
+            transition: all 0.3s;
+            background: #fff;
+        }
+
+        .form-input:focus {
+            border-color: #9ecc98;
+            box-shadow: 0 0 0 3px rgba(158, 204, 152, 0.2);
+        }
+
+        .form-input[type="time"] {
+            width: 140px;
+        }
+
+        .form-input[type="text"] {
+            flex-grow: 1;
+            min-width: 180px;
+        }
+
+        .action-btn {
+            padding: 10px 22px;
+            background-color: #9ecc98;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .action-btn:hover {
+            background-color: #8abf84;
+            transform: translateY(-1px);
+        }
+
+        .action-btn:active {
+            transform: scale(0.97);
+        }
+
+        .alarm-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .alarm-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fbfcfa;
+            padding: 12px 20px;
+            border-radius: 18px;
+            border: 2px solid #edf3e3;
+            transition: all 0.2s;
+        }
+
+        .alarm-item:hover {
+            border-color: #d8e6c7;
+        }
+
+        .alarm-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .alarm-info-title {
+            font-weight: 600;
+            color: #4f583e;
+            font-size: 1.05em;
+        }
+
+        .alarm-info-time {
+            color: #8c967d;
+            font-size: 0.88em;
+        }
+
+        .icon-btn {
+            background-color: #ffebeb;
+            color: #d85c5c;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .icon-btn:hover {
+            background-color: #ffd4d4;
+        }
+
+        /* 並列區塊：一日 Routine & 待辦事項 */
+        .dual-columns-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            width: 100%;
+        }
+
+        .feature-card {
+            background: #ffffff;
+            border-radius: 35px;
+            padding: 25px 26px;
+            box-shadow: 0 12px 30px rgba(162, 155, 139, 0.12);
+            border: 4px solid #fdfdfd;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            min-height: 380px;
+        }
+
+        .feature-card:hover {
+            box-shadow: 0 16px 36px rgba(162, 155, 139, 0.18);
+        }
+
+        .routine-card {
+            border-color: #fcefd6;
+        }
+
+        .routine-card .section-title {
+            color: #e28e24;
+        }
+
+        .todo-card {
+            border-color: #e5ebff;
+        }
+
+        .todo-card .section-title {
+            color: #647ecb;
+        }
+
+        /* 進度條與計數 */
+        .progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: #f7f1e6;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0 15px 0;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ffb854, #f39c12);
+            border-radius: 10px;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .header-action-btn {
+            background: #fff6e8;
+            color: #d97706;
+            border: 2px solid #fde68a;
+            padding: 5px 14px;
+            border-radius: 12px;
+            font-size: 0.88em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .header-action-btn:hover {
+            background: #fef08a;
+            transform: translateY(-1px);
+        }
+
+        .count-pill {
+            display: inline-block;
+            background: #edf2ff;
+            color: #4361ee;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.82em;
+            font-weight: 700;
+        }
+
+        /* 項目清單樣式 */
+        .items-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 280px;
+            padding-right: 4px;
+        }
+
+        .items-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .items-list::-webkit-scrollbar-thumb {
+            background-color: #e3ded5;
+            border-radius: 6px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            background: #fdfaf6;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: 2px solid #f6eee3;
+            transition: all 0.25s ease;
+            user-select: none;
+            position: relative;
+        }
+
+        .todo-item {
+            background: #f8faff;
+            border-color: #edf2fc;
+        }
+
+        .task-item:hover {
+            transform: translateX(2px);
+            border-color: #ebdcd0;
+        }
+
+        .todo-item:hover {
+            border-color: #d6e2fb;
+        }
+
+        /* 自訂勾選框 */
+        .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid #d5c8ba;
+            border-radius: 7px;
+            outline: none;
+            cursor: pointer;
+            margin-right: 14px;
+            display: grid;
+            place-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            background-color: #fff;
+        }
+
+        .custom-checkbox::before {
+            content: "";
+            width: 10px;
+            height: 6px;
+            border-left: 2.5px solid white;
+            border-bottom: 2.5px solid white;
+            transform: rotate(-45deg) translate(1px, -1px) scale(0);
+            transition: 0.15s transform ease-in-out;
+        }
+
+        .custom-checkbox:checked {
+            background-color: #ff9f43;
+            border-color: #ff9f43;
+        }
+
+        .custom-checkbox:checked::before {
+            transform: rotate(-45deg) translate(1px, -1px) scale(1);
+        }
+
+        .todo-checkbox {
+            border-color: #b8c7ea;
+            border-radius: 50%;
+        }
+
+        .todo-checkbox:checked {
+            background-color: #48bb78;
+            border-color: #48bb78;
+        }
+
+        .task-label {
+            flex-grow: 1;
+            font-size: 1.02em;
+            color: #4b443c;
+            font-weight: 500;
+            word-break: break-word;
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        .todo-label {
+            color: #3b4252;
+        }
+
+        .task-item.completed {
+            opacity: 0.65;
+            background-color: #f5f2ed;
+        }
+
+        .task-item.completed .task-label {
+            text-decoration: line-through;
+            color: #9a9187;
+        }
+
+        /* 待辦事項完成消失動畫 */
+        .task-item.todo-completing {
+            animation: todoDoneSlide 0.38s ease forwards;
+        }
+
+        @keyframes todoDoneSlide {
+            0% {
+                opacity: 1;
+                transform: scale(1) translateX(0);
+                max-height: 60px;
+            }
+            40% {
+                opacity: 0.7;
+                background-color: #e6fffa;
+                transform: scale(0.98) translateX(10px);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.9) translateX(30px);
+                max-height: 0;
+                padding-top: 0;
+                padding-bottom: 0;
+                margin-bottom: 0;
+                border: none;
+            }
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            color: #a8a29e;
+            padding: 30px 10px;
+            text-align: center;
+            gap: 8px;
+            font-size: 0.95em;
+        }
+
+        .empty-icon-svg {
+            width: 38px;
+            height: 38px;
+            opacity: 0.45;
+            margin-bottom: 4px;
+        }
+
+        /* 待辦事項輸入框 */
+        .todo-input-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .todo-input {
+            flex-grow: 1;
+            padding: 10px 16px;
+            border: 2px solid #e1e7f5;
+            border-radius: 14px;
+            font-size: 0.98em;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s;
+            background: #fff;
+        }
+
+        .todo-input:focus {
+            border-color: #8da4f7;
+            box-shadow: 0 0 0 3px rgba(141, 164, 247, 0.2);
+        }
+
+        .todo-add-btn {
+            padding: 10px 18px;
+            background-color: #647ecb;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .todo-add-btn:hover {
+            background-color: #516cb9;
+            transform: translateY(-1px);
+        }
+
+        .delete-mini-btn {
+            opacity: 0;
+            background: transparent;
+            border: none;
+            color: #c5a898;
+            cursor: pointer;
+            padding: 4px 6px;
+            font-size: 1.1em;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .task-item:hover .delete-mini-btn {
+            opacity: 1;
+        }
+
+        .delete-mini-btn:hover {
+            color: #e53e3e;
+            background-color: #ffeeee;
+        }
+
+        /* Modal 彈出視窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(240, 235, 225, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: white;
+            padding: 35px;
+            border-radius: 35px;
+            box-shadow: 0 20px 50px rgba(162, 155, 139, 0.25);
+            border: 4px solid #ffd1d1;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            max-width: 480px;
+            width: 100%;
+            text-align: left;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: translateY(0);
+        }
+
+        .modal-title-text {
+            color: #d97706;
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-desc {
+            color: #78716c;
+            font-size: 0.92em;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .routine-edit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 6px;
+        }
+
+        .routine-edit-item {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .routine-edit-input {
+            flex-grow: 1;
+            padding: 9px 14px;
+            border: 2px solid #e7e5e4;
+            border-radius: 12px;
+            font-size: 0.95em;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .routine-edit-input:focus {
+            border-color: #f59e0b;
+        }
+
+        .modal-footer-btns {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .modal-btn-secondary {
+            padding: 10px 20px;
+            background-color: #f5f5f4;
+            color: #57534e;
+            border: none;
+            border-radius: 14px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background-color 0.2s;
+        }
+
+        .modal-btn-secondary:hover {
+            background-color: #e7e5e4;
+        }
+
+        .modal-btn-primary {
+            padding: 10px 24px;
+            background-color: #f59e0b;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-primary:hover {
+            background-color: #d97706;
+        }
+
+        .add-routine-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        /* 黑暗模式適配 */
+        body.dark-mode {
+            background-color: #13141f;
+            background-image: radial-gradient(#232538 2px, transparent 2px);
+            color: #e4e6eb;
+        }
+
+        body.dark-mode .dark-mode-btn {
+            background: #1e2030;
+            border-color: #2f3349;
+            color: #e4e6eb;
+        }
+
+        body.dark-mode .clock-card,
+        body.dark-mode .alarm-section,
+        body.dark-mode .feature-card,
+        body.dark-mode .modal-card {
+            background: #1b1c2b;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.45);
+        }
+
+        body.dark-mode .clock-card.usa { border-color: #1e3a5f; }
+        body.dark-mode .clock-card.taiwan { border-color: #52233c; }
+        body.dark-mode .alarm-section { border-color: #233826; }
+        body.dark-mode .routine-card { border-color: #4a3518; }
+        body.dark-mode .todo-card { border-color: #202b4d; }
+
+        body.dark-mode .clock-card.usa .badge { background-color: #172a45; color: #7cb9f2; }
+        body.dark-mode .clock-card.taiwan .badge { background-color: #3b182b; color: #f694bd; }
+        body.dark-mode .timezone, body.dark-mode .date { color: #8f9bb3; }
+        
+        body.dark-mode .section-title { color: #85d996; }
+        body.dark-mode .routine-card .section-title { color: #fbb040; }
+        body.dark-mode .todo-card .section-title { color: #8ca3f8; }
+        body.dark-mode .section-subtitle { color: #728271; }
+
+        body.dark-mode .form-input,
+        body.dark-mode .todo-input,
+        body.dark-mode .routine-edit-input {
+            background-color: #13141f;
+            border-color: #2c3046;
+            color: #e4e6eb;
+        }
+
+        body.dark-mode .alarm-item {
+            background-color: #141622;
+            border-color: #242938;
+        }
+        body.dark-mode .alarm-info-title { color: #e2e8f0; }
+        body.dark-mode .alarm-info-time { color: #8f9bb3; }
+
+        body.dark-mode .task-item {
+            background: #161724;
+            border-color: #25283a;
+        }
+        body.dark-mode .todo-item {
+            background: #171929;
+            border-color: #252a40;
+        }
+        body.dark-mode .task-label, body.dark-mode .todo-label {
+            color: #d1d5db;
+        }
+        body.dark-mode .task-item.completed {
+            background-color: #12131c;
+        }
+        body.dark-mode .task-item.completed .task-label {
+            color: #6b7280;
+        }
+
+        body.dark-mode .progress-bar-container {
+            background-color: #2a2218;
+        }
+
+        body.dark-mode .header-action-btn {
+            background: #382710;
+            color: #fbb040;
+            border-color: #634318;
+        }
+        body.dark-mode .count-pill {
+            background: #1a233d;
+            color: #8da4f7;
+        }
+
+        body.dark-mode .custom-checkbox {
+            background-color: #1b1c2b;
+            border-color: #4b5563;
+        }
+
+        body.dark-mode .modal-overlay {
+            background: rgba(10, 11, 18, 0.88);
+        }
+
+        body.dark-mode .modal-card {
+            border-color: #4a3518;
+        }
+        body.dark-mode .modal-desc {
+            color: #9ca3af;
+        }
+        body.dark-mode .modal-btn-secondary {
+            background-color: #26283b;
+            color: #d1d5db;
+        }
+        body.dark-mode .modal-btn-secondary:hover {
+            background-color: #32354e;
+        }
+
+        @media (max-width: 600px) {
+            .dual-columns-container {
+                grid-template-columns: 1fr;
+            }
+            .time {
+                font-size: 2.8em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-bar">
+        <button id="dark-mode-btn" class="dark-mode-btn">
+            <span id="theme-icon">🌙</span>
+            <span id="theme-text">黑暗模式</span>
+        </button>
+    </div>
+
+    <div class="main-wrapper">
+        <!-- 雙時區時鐘 -->
+        <div class="clocks-container">
+            <div class="clock-card usa">
+                <div class="badge">美國西岸</div>
+                <div class="timezone">太平洋時間 (PT)</div>
+                <div class="time" id="usa-time">--:--:--</div>
+                <div class="date" id="usa-date">----年--月--日</div>
+            </div>
+
+            <div class="clock-card taiwan">
+                <div class="badge">台灣</div>
+                <div class="timezone">台北時間 (CST)</div>
+                <div class="time" id="taiwan-time">--:--:--</div>
+                <div class="date" id="taiwan-date">----年--月--日</div>
+            </div>
+        </div>
+
+        <!-- 鬧鐘設定 -->
+        <div class="alarm-section">
+            <div class="section-header">
+                <div class="section-title">
+                    設定提醒鬧鐘
+                    <span class="section-subtitle">(以美國西岸時間為準自動換算)</span>
+                </div>
+            </div>
+            <div class="alarm-form">
+                <input type="time" id="alarm-time" class="form-input" required title="設定美西時間">
+                <input type="text" id="alarm-title" class="form-input" placeholder="鬧鐘提醒事項..." required>
+                <button type="button" id="add-alarm-btn" class="action-btn">＋ 新增鬧鐘</button>
+            </div>
+            <ul class="alarm-list" id="alarm-list">
+                <!-- 動態鬧鐘項目 -->
+            </ul>
+        </div>
+
+        <!-- 並列功能區塊：一日 Routine 與 隨時代辦事項 -->
+        <div class="dual-columns-container">
+            <!-- 一日 Routine 區塊 -->
+            <div class="feature-card routine-card">
+                <div class="section-header">
+                    <div class="section-title">
+                        一日 Routine
+                    </div>
+                    <button class="header-action-btn" id="open-routine-modal-btn">管理項目</button>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; font-size: 0.88em; color: #a89379; font-weight: 600;">
+                    <span>今日完成進度</span>
+                    <span id="routine-progress-text">0 / 0 (0%)</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="routine-progress-bar"></div>
+                </div>
+
+                <ul class="items-list" id="routine-list">
+                    <!-- 動態 Routine 項目 -->
+                </ul>
+            </div>
+
+            <!-- 待辦事項區塊 -->
+            <div class="feature-card todo-card">
+                <div class="section-header">
+                    <div class="section-title">
+                        隨時代辦事項
+                    </div>
+                    <span class="count-pill" id="todo-count-badge">剩餘 0 項</span>
+                </div>
+
+                <ul class="items-list" id="todo-list">
+                    <!-- 動態待辦項目 -->
+                </ul>
+
+                <form class="todo-input-form" id="todo-form">
+                    <input type="text" id="todo-input" class="todo-input" placeholder="新增待辦事項 (按 Enter 儲存)..." autocomplete="off" required>
+                    <button type="submit" class="todo-add-btn">新增</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 鬧鐘響起彈出視窗 Modal -->
+    <div class="modal-overlay" id="alarm-modal">
+        <div class="modal-card" style="text-align: center; max-width: 400px; border-color: #ffd1d1;">
+            <div class="modal-title-text" style="color: #e66b6b; justify-content: center;">鬧鐘提醒</div>
+            <div style="font-size: 1.3em; font-weight: 600; color: #555; margin: 20px 0;" id="alarm-modal-msg"></div>
+            <button class="action-btn" id="alarm-close-btn" style="background-color: #e66b6b; margin: 0 auto;">我知道了</button>
+        </div>
+    </div>
+
+    <!-- 一日 Routine 管理視窗 Modal -->
+    <div class="modal-overlay" id="routine-modal">
+        <div class="modal-card">
+            <div class="modal-title-text">管理一日 Routine 項目</div>
+            <div class="modal-desc">在此設定每日重複的固定例行事項。每天開啟時將自動載入清單並重新計算完成進度。</div>
+
+            <div class="add-routine-row">
+                <input type="text" id="new-routine-input" class="routine-edit-input" placeholder="新增例行項目 (如：晨間喝水 500cc、閱讀 20 分鐘)...">
+                <button type="button" class="action-btn" id="add-routine-modal-btn" style="background-color: #f59e0b;">＋ 新增</button>
+            </div>
+
+            <div class="routine-edit-list" id="routine-edit-list">
+                <!-- 編輯清單項目 -->
+            </div>
+
+            <div class="modal-footer-btns">
+                <button class="modal-btn-secondary" id="close-routine-modal-btn">取消</button>
+                <button class="modal-btn-primary" id="save-routine-modal-btn">儲存清單</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* -------------------------------------------------------------
+           1. 黑暗模式切換與持久化
+        ------------------------------------------------------------- */
+        const darkModeBtn = document.getElementById('dark-mode-btn');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+        const savedDarkMode = localStorage.getItem('world_clock_dark_mode');
+
+        function applyTheme(isDark) {
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+                themeIcon.textContent = '☀';
+                themeText.textContent = '明亮模式';
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeIcon.textContent = '☾';
+                themeText.textContent = '黑暗模式';
+            }
+        }
+
+        if (savedDarkMode === 'true') {
+            applyTheme(true);
+        }
+
+        darkModeBtn.addEventListener('click', () => {
+            const isDark = !document.body.classList.contains('dark-mode');
+            applyTheme(isDark);
+            localStorage.setItem('world_clock_dark_mode', isDark);
+        });
+
+        /* -------------------------------------------------------------
+           2. 雙時區時間更新
+        ------------------------------------------------------------- */
+        function updateClocks() {
+            const now = new Date();
+
+            const usaOptions = {
+                timeZone: 'America/Los_Angeles',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            const usaDateOptions = {
+                timeZone: 'America/Los_Angeles',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            };
+
+            const taiwanOptions = {
+                timeZone: 'Asia/Taipei',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+            const taiwanDateOptions = {
+                timeZone: 'Asia/Taipei',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            };
+
+            document.getElementById('usa-time').textContent =
+                now.toLocaleTimeString('zh-TW', usaOptions);
+            document.getElementById('usa-date').textContent =
+                now.toLocaleDateString('zh-TW', usaDateOptions);
+
+            document.getElementById('taiwan-time').textContent =
+                now.toLocaleTimeString('zh-TW', taiwanOptions);
+            document.getElementById('taiwan-date').textContent =
+                now.toLocaleDateString('zh-TW', taiwanDateOptions);
+
+            checkAlarms();
+            checkDailyReset();
+        }
+
+        /* -------------------------------------------------------------
+           3. 鬧鐘管理與音效
+        ------------------------------------------------------------- */
+        let alarms = JSON.parse(localStorage.getItem('world_clock_alarms') || '[]');
+        let audioCtx = null;
+
+        function saveAlarms() {
+            localStorage.setItem('world_clock_alarms', JSON.stringify(alarms));
+        }
+
+        function playAlarmSound() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                for (let i = 0; i < 3; i++) {
+                    const osc = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    osc.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, audioCtx.currentTime + i * 0.4);
+
+                    gainNode.gain.setValueAtTime(0, audioCtx.currentTime + i * 0.4);
+                    gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + i * 0.4 + 0.05);
+                    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + i * 0.4 + 0.3);
+
+                    osc.start(audioCtx.currentTime + i * 0.4);
+                    osc.stop(audioCtx.currentTime + i * 0.4 + 0.3);
+                }
+            } catch (e) {
+                console.error("Audio playback error:", e);
+            }
+        }
+
+        function getUsaTimeString() {
+            const now = new Date();
+            const options = { timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hour12: false };
+            const timeParts = new Intl.DateTimeFormat('en-US', options).formatToParts(now);
+            const hour = timeParts.find(p => p.type === 'hour').value;
+            const minute = timeParts.find(p => p.type === 'minute').value;
+            let parsedHour = parseInt(hour, 10);
+            if (parsedHour === 24) parsedHour = 0;
+            return `${parsedHour.toString().padStart(2, '0')}:${minute.padStart(2, '0')}`;
+        }
+
+        function usaTimeToTaiwanTimeString(usaTimeString) {
+            const [hours, minutes] = usaTimeString.split(':').map(Number);
+            const now = new Date();
+            const usaStr = now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
+            const twStr = now.toLocaleString('en-US', { timeZone: 'Asia/Taipei' });
+
+            const diffMs = new Date(twStr).getTime() - new Date(usaStr).getTime();
+            const tempDate = new Date();
+            tempDate.setHours(hours, minutes, 0, 0);
+
+            const finalDate = new Date(tempDate.getTime() + diffMs);
+            return finalDate.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+
+        function renderAlarms() {
+            const list = document.getElementById('alarm-list');
+            list.innerHTML = '';
+            
+            if (alarms.length === 0) {
+                list.innerHTML = `<li style="text-align: center; color: #a4af8b; padding: 10px; font-size: 0.9em;">目前無設定中的提醒鬧鐘</li>`;
+                return;
+            }
+
+            alarms.forEach((alarm, index) => {
+                const twTime = usaTimeToTaiwanTimeString(alarm.time);
+                const li = document.createElement('li');
+                li.className = 'alarm-item';
+                li.innerHTML = `
+                    <div class="alarm-info">
+                        <span class="alarm-info-title">${alarm.title}</span>
+                        <span class="alarm-info-time">美西時間 ${alarm.time} ➔ 台灣時間 ${twTime}</span>
+                    </div>
+                    <button class="icon-btn" onclick="deleteAlarm(${index})">刪除</button>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function addAlarm() {
+            const timeInput = document.getElementById('alarm-time');
+            const titleInput = document.getElementById('alarm-title');
+
+            if (!timeInput.value || !titleInput.value.trim()) {
+                alert('請選擇提醒時間並填寫標題！');
+                return;
+            }
+
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            alarms.push({
+                time: timeInput.value,
+                title: titleInput.value.trim(),
+                triggered: false
+            });
+
+            timeInput.value = '';
+            titleInput.value = '';
+            saveAlarms();
+            renderAlarms();
+        }
+
+        window.deleteAlarm = function(index) {
+            alarms.splice(index, 1);
+            saveAlarms();
+            renderAlarms();
+        };
+
+        document.getElementById('add-alarm-btn').addEventListener('click', addAlarm);
+
+        document.getElementById('alarm-close-btn').addEventListener('click', () => {
+            document.getElementById('alarm-modal').classList.remove('active');
+        });
+
+        function checkAlarms() {
+            const currentUsaTime = getUsaTimeString();
+            alarms.forEach(alarm => {
+                if (!alarm.triggered && alarm.time === currentUsaTime) {
+                    alarm.triggered = true;
+                    triggerAlarm(alarm.title);
+                }
+            });
+        }
+
+        function triggerAlarm(title) {
+            playAlarmSound();
+            document.getElementById('alarm-modal-msg').textContent = title;
+            document.getElementById('alarm-modal').classList.add('active');
+        }
+
+        /* -------------------------------------------------------------
+           4. 一日 Routine 每日例行功能
+        ------------------------------------------------------------- */
+        const defaultRoutines = [
+            '晨間喝一杯溫開水 500cc',
+            '美股 / 國際市場資訊瀏覽',
+            '每日運動伸展 15 分鐘',
+            '睡前閱讀 20 分鐘'
+        ];
+
+        // 若舊資料含有 emoji，清理掉
+        function cleanEmojis(str) {
+            return str.replace(/[\u{1F300}-\u{1FAFF}]|[\u{2600}-\u{27BF}]/gu, '').trim();
+        }
+
+        let rawRoutines = JSON.parse(localStorage.getItem('world_clock_routine_items'));
+        let routineTemplates = (rawRoutines && rawRoutines.length > 0) ? rawRoutines.map(cleanEmojis) : defaultRoutines;
+        let todayDateKey = new Date().toISOString().slice(0, 10);
+        let routineCompletedMap = JSON.parse(localStorage.getItem('world_clock_routine_completed_' + todayDateKey) || '{}');
+
+        // 跨日檢查自動重置
+        function checkDailyReset() {
+            const currentDateKey = new Date().toISOString().slice(0, 10);
+            if (currentDateKey !== todayDateKey) {
+                todayDateKey = currentDateKey;
+                routineCompletedMap = JSON.parse(localStorage.getItem('world_clock_routine_completed_' + todayDateKey) || '{}');
+                renderRoutineList();
+            }
+        }
+
+        function saveRoutineProgress() {
+            localStorage.setItem('world_clock_routine_completed_' + todayDateKey, JSON.stringify(routineCompletedMap));
+            renderRoutineList();
+        }
+
+        function renderRoutineList() {
+            const list = document.getElementById('routine-list');
+            list.innerHTML = '';
+
+            if (routineTemplates.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-weight: 600; color: #a89f91;">尚無設定例行事項</div>
+                        <div style="font-size: 0.85em; color: #bcaaa4;">點擊上方「管理項目」新增每日目標</div>
+                    </div>
+                `;
+                document.getElementById('routine-progress-text').textContent = '0 / 0 (0%)';
+                document.getElementById('routine-progress-bar').style.width = '0%';
+                return;
+            }
+
+            let completedCount = 0;
+
+            routineTemplates.forEach((text, index) => {
+                const isCompleted = !!routineCompletedMap[index];
+                if (isCompleted) completedCount++;
+
+                const li = document.createElement('li');
+                li.className = `task-item ${isCompleted ? 'completed' : ''}`;
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'custom-checkbox';
+                checkbox.checked = isCompleted;
+                checkbox.id = `routine-cb-${index}`;
+                checkbox.addEventListener('change', () => {
+                    routineCompletedMap[index] = checkbox.checked;
+                    saveRoutineProgress();
+                });
+
+                const label = document.createElement('label');
+                label.className = 'task-label';
+                label.htmlFor = `routine-cb-${index}`;
+                label.textContent = text;
+
+                li.appendChild(checkbox);
+                li.appendChild(label);
+                list.appendChild(li);
+            });
+
+            const total = routineTemplates.length;
+            const percent = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+            document.getElementById('routine-progress-text').textContent = `${completedCount} / ${total} (${percent}%)`;
+            document.getElementById('routine-progress-bar').style.width = `${percent}%`;
+        }
+
+        // Routine 管理 Modal 邏輯
+        let tempRoutineList = [];
+        const routineModal = document.getElementById('routine-modal');
+        const openRoutineModalBtn = document.getElementById('open-routine-modal-btn');
+        const closeRoutineModalBtn = document.getElementById('close-routine-modal-btn');
+        const saveRoutineModalBtn = document.getElementById('save-routine-modal-btn');
+        const addRoutineModalBtn = document.getElementById('add-routine-modal-btn');
+        const newRoutineInput = document.getElementById('new-routine-input');
+
+        function openRoutineModal() {
+            tempRoutineList = [...routineTemplates];
+            renderRoutineEditList();
+            routineModal.classList.add('active');
+            newRoutineInput.value = '';
+            newRoutineInput.focus();
+        }
+
+        function closeRoutineModal() {
+            routineModal.classList.remove('active');
+        }
+
+        function renderRoutineEditList() {
+            const list = document.getElementById('routine-edit-list');
+            list.innerHTML = '';
+            if (tempRoutineList.length === 0) {
+                list.innerHTML = `<div style="color: #9ca3af; text-align: center; padding: 15px;">清單目前為空，請輸入事項並點擊新增</div>`;
+                return;
+            }
+
+            tempRoutineList.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = 'routine-edit-item';
+                row.innerHTML = `
+                    <input type="text" class="routine-edit-input" value="${item.replace(/"/g, '&quot;')}" onchange="updateTempRoutine(${index}, this.value)">
+                    <button type="button" class="icon-btn" onclick="removeTempRoutine(${index})">刪除</button>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        window.updateTempRoutine = function(index, val) {
+            if (val.trim()) {
+                tempRoutineList[index] = val.trim();
+            }
+        };
+
+        window.removeTempRoutine = function(index) {
+            tempRoutineList.splice(index, 1);
+            renderRoutineEditList();
+        };
+
+        function addTempRoutine() {
+            const val = newRoutineInput.value.trim();
+            if (!val) return;
+            tempRoutineList.push(val);
+            newRoutineInput.value = '';
+            renderRoutineEditList();
+        }
+
+        addRoutineModalBtn.addEventListener('click', addTempRoutine);
+        newRoutineInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTempRoutine();
+            }
+        });
+
+        openRoutineModalBtn.addEventListener('click', openRoutineModal);
+        closeRoutineModalBtn.addEventListener('click', closeRoutineModal);
+
+        saveRoutineModalBtn.addEventListener('click', () => {
+            routineTemplates = tempRoutineList.filter(t => t && t.trim().length > 0);
+            localStorage.setItem('world_clock_routine_items', JSON.stringify(routineTemplates));
+            renderRoutineList();
+            closeRoutineModal();
+        });
+
+        /* -------------------------------------------------------------
+           5. 隨時代辦事項 (To-Do List - 勾選後消失)
+        ------------------------------------------------------------- */
+        let rawTodos = JSON.parse(localStorage.getItem('world_clock_todos') || '[]');
+        let todos = rawTodos.map(t => ({ ...t, text: cleanEmojis(t.text) }));
+
+        function saveTodos() {
+            localStorage.setItem('world_clock_todos', JSON.stringify(todos));
+        }
+
+        function renderTodoList() {
+            const list = document.getElementById('todo-list');
+            list.innerHTML = '';
+
+            const badge = document.getElementById('todo-count-badge');
+            badge.textContent = `剩餘 ${todos.length} 項`;
+
+            if (todos.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-weight: 600; color: #7f90b8;">目前沒有待辦事項</div>
+                        <div style="font-size: 0.85em; color: #9bb0d4;">在下方輸入隨時記錄待辦事項</div>
+                    </div>
+                `;
+                return;
+            }
+
+            todos.forEach((todo, index) => {
+                const li = document.createElement('li');
+                li.className = 'task-item todo-item';
+                li.id = `todo-item-${todo.id || index}`;
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'custom-checkbox todo-checkbox';
+                checkbox.title = '勾選完成 (將自動消除)';
+
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        li.classList.add('todo-completing');
+                        setTimeout(() => {
+                            todos = todos.filter(t => (t.id ? t.id !== todo.id : todos.indexOf(t) !== index));
+                            saveTodos();
+                            renderTodoList();
+                        }, 350);
+                    }
+                });
+
+                const label = document.createElement('span');
+                label.className = 'task-label todo-label';
+                label.textContent = todo.text;
+                label.addEventListener('click', () => {
+                    checkbox.checked = true;
+                    checkbox.dispatchEvent(new Event('change'));
+                });
+
+                const delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'delete-mini-btn';
+                delBtn.innerHTML = '✕';
+                delBtn.title = '刪除此項目';
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    todos.splice(index, 1);
+                    saveTodos();
+                    renderTodoList();
+                });
+
+                li.appendChild(checkbox);
+                li.appendChild(label);
+                li.appendChild(delBtn);
+                list.appendChild(li);
+            });
+        }
+
+        const todoForm = document.getElementById('todo-form');
+        const todoInput = document.getElementById('todo-input');
+
+        todoForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = todoInput.value.trim();
+            if (!text) return;
+
+            todos.push({
+                id: Date.now() + Math.random().toString(36).substr(2, 4),
+                text: text,
+                createdAt: new Date().toISOString()
+            });
+
+            todoInput.value = '';
+            saveTodos();
+            renderTodoList();
+
+            const list = document.getElementById('todo-list');
+            list.scrollTop = list.scrollHeight;
+        });
+
+        /* -------------------------------------------------------------
+           6. 初始化執行
+        ------------------------------------------------------------- */
+        renderAlarms();
+        renderRoutineList();
+        renderTodoList();
+        updateClocks();
+        setInterval(updateClocks, 1000);
+    </script>
+</body>
+
+</html>
